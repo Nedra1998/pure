@@ -102,23 +102,27 @@ prompt_pure_preprompt_render() {
 
 	# Set color for git branch/dirty status, change color if dirty checking has
 	# been delayed.
-	local git_color=242
+	local git_color=black
 	[[ -n ${prompt_pure_git_last_dirty_check_timestamp+x} ]] && git_color=red
 
 	# Initialize the preprompt array.
 	local -a preprompt_parts
 
 	# Set the path.
-	preprompt_parts+=('%F{blue}%~%f')
+	preprompt_parts+=('%F{cyan}%B%~%b%f')
 
 	# Add git branch and dirty status info.
 	typeset -gA prompt_pure_vcs_info
 	if [[ -n $prompt_pure_vcs_info[branch] ]]; then
-		preprompt_parts+=("%F{$git_color}"'${prompt_pure_vcs_info[branch]}${prompt_pure_git_dirty}%f')
+		preprompt_parts+=('%F{$git_color}%B:${prompt_pure_vcs_info[branch]}${prompt_pure_git_dirty}%b%f')
 	fi
 	# Git pull/push arrows.
 	if [[ -n $prompt_pure_git_arrows ]]; then
 		preprompt_parts+=('%F{cyan}${prompt_pure_git_arrows}%f')
+	fi
+
+	if [[ -n "$(prompt_pure_pyenv)" ]]; then
+		preprompt_parts+=('%F{black}%B:$(prompt_pure_pyenv)%b%f')
 	fi
 
 	# Username and machine, if applicable.
@@ -177,6 +181,12 @@ prompt_pure_precmd() {
 
 	# print the preprompt
 	prompt_pure_preprompt_render "precmd"
+}
+
+prompt_pure_pyenv() {
+	if [[ "$(pyenv version-name)" != 'system' ]]; then
+		echo "$(pyenv version-name)"
+	fi
 }
 
 prompt_pure_async_git_aliases() {
